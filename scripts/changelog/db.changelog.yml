@@ -1,0 +1,3 @@
+databaseChangeLog:
+  - include:
+      file: classpath:schema/1-changelog-users-20221217.yml
