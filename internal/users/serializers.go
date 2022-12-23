@@ -14,13 +14,11 @@ type UserSerializer struct {
 	User
 }
 
-func (s *UserSerializer) Response() (UserResponse, error) {
-	r := UserResponse{
+func (s *UserSerializer) Response() UserResponse {
+	return UserResponse{
 		Id:        s.User.Id,
 		FirstName: s.User.FirstName,
 		LastName:  s.User.LastName,
 		UserName:  s.User.UserName,
 	}
-
-	return r, nil
 }

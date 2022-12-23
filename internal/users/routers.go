@@ -18,10 +18,5 @@ func UserRetrieveByUserName(c *gin.Context) {
 	}
 
 	s := UserSerializer{c, u}
-	r, err := s.Response()
-	if err != nil {
-		c.JSON(http.StatusNotFound, err)
-	}
-
-	c.JSON(http.StatusOK, r)
+	c.JSON(http.StatusOK, s.Response())
 }
