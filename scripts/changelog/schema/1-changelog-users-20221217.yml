@@ -10,21 +10,9 @@ databaseChangeLog:
             columns:
               - column:
                   name: user_id
-                  type: bigint
-                  autoIncrement: true
-                  startWith: 100
+                  type: archar(50)
                   constraints:
                     primaryKey: true
-                    nullable: false
-              - column:
-                  name: firstname
-                  type: varchar(255)
-                  constraints:
-                    nullable: false
-              - column:
-                  name: lastname
-                  type: varchar(255)
-                  constraints:
                     nullable: false
               - column:
                   name: username
@@ -36,3 +24,4 @@ databaseChangeLog:
                   type: varchar(255)
                   constraints:
                     nullable: false
+                    
