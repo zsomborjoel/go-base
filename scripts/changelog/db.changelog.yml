@@ -1,3 +1,7 @@
 databaseChangeLog:
   - include:
       file: classpath:schema/1-changelog-users-20221217.yml
+  - include:
+      file: classpath:schema/2-changelog-users-email-20221227.yml
+  - include:
+      file: classpath:schema/3-changelog-users-username-unique-20221228.yml
