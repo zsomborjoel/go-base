@@ -9,7 +9,7 @@ databaseChangeLog:
             tableName: users
             columns:
               - column:
-                  name: user_id
+                  name: id
                   type: varchar(50)
                   constraints:
                     primaryKey: true
@@ -24,4 +24,19 @@ databaseChangeLog:
                   type: varchar(255)
                   constraints:
                     nullable: false
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: active
+                  type: boolean
+                  defaultValue: false
+                  constraints:
+                    nullable: false
+        -  addUniqueConstraint:  
+            columnNames: username  
+            constraintName: username_unique  
+            tableName: users
                     
