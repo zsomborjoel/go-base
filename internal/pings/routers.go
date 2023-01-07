@@ -19,10 +19,9 @@ func ping(c *gin.Context) {
 func pingDb(c *gin.Context) {
 	db := common.GetDB()
 
-	var result int
-	err := db.Get(&result, "SELECT 1")
+	err := db.Ping()
 	if (err != nil) {
-		c.Writer.WriteHeader(http.StatusBadRequest)
+		c.Writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	

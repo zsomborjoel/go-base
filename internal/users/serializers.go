@@ -3,10 +3,9 @@ package users
 import "github.com/gin-gonic/gin"
 
 type UserResponse struct {
-	Id        int64
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	UserName  string `json:"userName"`
+	Id       string
+	UserName string `json:"userName"`
+	Email    string `json:"email"`
 }
 
 type UserSerializer struct {
@@ -16,9 +15,8 @@ type UserSerializer struct {
 
 func (s *UserSerializer) Response() UserResponse {
 	return UserResponse{
-		Id:        s.User.Id,
-		FirstName: s.User.FirstName,
-		LastName:  s.User.LastName,
-		UserName:  s.User.UserName,
+		Id:       s.User.Id,
+		UserName: s.User.UserName,
+		Email:    s.User.Email,
 	}
 }
