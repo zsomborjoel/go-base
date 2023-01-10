@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
+	"github.com/zsomborjoel/workoutxz/internal/email"
 	"github.com/zsomborjoel/workoutxz/internal/users"
 	"github.com/zsomborjoel/workoutxz/internal/verificationtokens"
 )
@@ -49,6 +50,8 @@ func Registration(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
+
+	email.SendEmail("zsomborjoel@gmai.com")
 
 	c.Writer.WriteHeader(http.StatusOK)
 }

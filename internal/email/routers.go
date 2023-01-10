@@ -8,11 +8,11 @@ import (
 )
 
 func EmailRegister(r *gin.RouterGroup) {
-	r.POST("/send", Registration)
+	r.POST("/send", Send)
 }
 
-func Registration(c *gin.Context) {
-	log.Debug().Msg("Registration called")
+func Send(c *gin.Context) {
+	log.Debug().Msg("Send called")
 
 	p := c.Query("target")
 

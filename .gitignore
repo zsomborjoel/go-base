@@ -15,3 +15,5 @@
 # vendor/
 
 cmd/workoutxz/workoutxz
+
+secret.json
