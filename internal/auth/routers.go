@@ -51,7 +51,10 @@ func Registration(c *gin.Context) {
 		return
 	}
 
-	email.SendEmail("zsomborjoel@gmai.com")
+	if err := email.SendEmail(u.Email); err != nil {
+		c.JSON(http.StatusInternalServerError, err.Error())
+		return
+	}
 
 	c.Writer.WriteHeader(http.StatusOK)
 }

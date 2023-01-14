@@ -18,6 +18,7 @@ func Send(c *gin.Context) {
 
 	err := SendEmail(p)
 	if err != nil {
+		log.Err(err).Stack()
 		c.JSON(http.StatusInternalServerError, err.Error())
 		return
 	}
