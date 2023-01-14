@@ -15,7 +15,6 @@
 # vendor/
 
 cmd/workoutxz/workoutxz
-cmd/workoutxz/token.json
 
 token.json
 secret.json
