@@ -11,6 +11,20 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
+# vscode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+
+# Local History for Visual Studio Code
+.history/
+
+# Built Visual Studio Code Extensions
+*.vsix
+
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
