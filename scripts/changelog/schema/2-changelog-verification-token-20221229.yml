@@ -6,7 +6,7 @@ databaseChangeLog:
       changes:
         - createTable:
             schema: public
-            tableName: verification_token
+            tableName: verification_tokens
             columns:
               - column:
                   name: token

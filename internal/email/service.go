@@ -5,25 +5,22 @@ import (
 	"encoding/base64"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/rs/zerolog/log"
+	"github.com/zsomborjoel/workoutxz/internal/common"
 	"google.golang.org/api/gmail/v1"
 	"google.golang.org/api/option"
 )
 
 const EmailTitle = "Workoutxz account confirmation"
 const User = "me"
+const EndpointDummy = "me"
 
 func SendEmail(to string) error {
 	log.Debug().Msg("email.SendEmail called")
 
 	from := os.Getenv("GMAIL_ACCOUNT")
-	htmlPath := os.Getenv("EMAIL_HTML_PATH")
-
-	html, err := os.ReadFile(htmlPath)
-	if err != nil {
-		return fmt.Errorf("Html Path file read failed: %w", err)
-	}
 
 	config, err := getConfig()
 	if err != nil {
@@ -40,12 +37,17 @@ func SendEmail(to string) error {
 	}
 	log.Debug().Msg("Service created")
 
+	html, err := getEmailHtml()
+	if err != nil {
+		return err
+	}
+
 	msgStr := "From:" + from + "\r\n"
 	msgStr += "To: " + to + "\r\n"
 	msgStr += "Subject: " + EmailTitle + "\r\n"
 	msgStr += "Content-Type: text/html; charset=\"UTF-8\"\r\n"
-	msgStr += string(html)
-	
+	msgStr += html
+
 	msg := []byte(msgStr)
 	gMessage := &gmail.Message{Raw: base64.URLEncoding.EncodeToString(msg)}
 
@@ -56,4 +58,19 @@ func SendEmail(to string) error {
 	log.Info().Msg(fmt.Sprintf("Email sent to: %s", to))
 
 	return nil
+}
+
+func getEmailHtml() (string, error) {
+	htmlPath := os.Getenv("EMAIL_HTML_PATH")
+	url := os.Getenv("APP_URL")
+	endpoint := url + "/api/auth" + common.ConfirmRegistrationEndpoint
+
+	html, err := os.ReadFile(htmlPath)
+	if err != nil {
+		return "", fmt.Errorf("Html Path file read failed: %w", err)
+	}
+
+	replacedHtml := strings.ReplaceAll(string(html), EndpointDummy, endpoint)
+
+	return replacedHtml, nil
 }

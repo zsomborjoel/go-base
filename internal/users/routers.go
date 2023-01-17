@@ -12,7 +12,7 @@ func UsersRegister(r *gin.RouterGroup) {
 
 func UserRetrieveByUserName(c *gin.Context) {
 	un := c.Param("username")
-	u, err := FindUserByUserName(un)
+	u, err := FindByUserName(un)
 	if err != nil {
 		c.JSON(http.StatusNotFound, err.Error())
 		return

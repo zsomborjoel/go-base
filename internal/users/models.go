@@ -12,26 +12,28 @@ type User struct {
 	UserName string `db:"username"`
 	Email    string `db:"email"`
 	Password string `db:"password"`
+	Active   bool   `db:"active"`
 }
 
-func FindUserByUserName(name string) (User, error) {
+func FindByUserName(username string) (User, error) {
 	log.Debug().Msg("users.FindUserByUserName called")
 
 	db := common.GetDB()
 	var u User
-	err := db.Get(&u, "SELECT * FROM users WHERE username=$1", name)
+	err := db.Get(&u, "SELECT * FROM users WHERE username=$1", username)
 	if err != nil {
 		return u, fmt.Errorf("An error occured in users.FindUserByUserName.Get: %w", err)
 	}
+
 	return u, nil
 }
 
-func ExistByUserName(name string) (bool, error) {
+func ExistByUserName(username string) (bool, error) {
 	log.Debug().Msg("users.ExistByUserName called")
 
 	db := common.GetDB()
 	var i int
-	err := db.Get(&i, "SELECT 1 FROM users WHERE username=$1", name)
+	err := db.Get(&i, "SELECT 1 FROM users WHERE username=$1", username)
 	if err != nil {
 		return false, fmt.Errorf("An error occured in users.ExistByUserName.Get: %w", err)
 	}
@@ -59,6 +61,26 @@ func CreateOne(user User) error {
 	err = tx.Commit()
 	if err != nil {
 		return fmt.Errorf("An error occured in users.CreateOne.Commit: %w", err)
+	}
+
+	return nil
+}
+
+func ActivateOne(user User) error {
+	log.Debug().Msg("users.ActivateOne called")
+
+	db := common.GetDB()
+	tx := db.MustBegin()
+
+	st := `UPDATE users SET active=true WHERE id=:id`
+	_, err := tx.NamedExec(st, &user)
+	if err != nil {
+		return fmt.Errorf("An error occured in users.ActivateOne.NamedExec: %w", err)
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("An error occured in users.ActivateOne.Commit: %w", err)
 	}
 
 	return nil

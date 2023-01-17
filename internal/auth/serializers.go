@@ -39,5 +39,6 @@ func (s *RegistrationRequestSerializer) Model() (users.User, error) {
 		UserName: s.RegistrationRequest.UserName,
 		Email:    s.RegistrationRequest.Email,
 		Password: string(hash),
+		Active : false,
 	}, nil
 }
