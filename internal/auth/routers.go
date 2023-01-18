@@ -44,17 +44,24 @@ func Registration(c *gin.Context) {
 		return
 	}
 
+	err = user.ExistByUserName(u.UserName)
+	if err != nil  {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
 	if err := user.CreateOne(u); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	if err := verificationtoken.CreateOne(u); err != nil {
+	t, err := verificationtoken.CreateOne(u)
+	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	if err := email.SendEmail(u.Email); err != nil {
+	if err := email.SendEmail(u.Email, t); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}

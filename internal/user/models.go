@@ -1,6 +1,7 @@
 package user
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/rs/zerolog/log"
@@ -28,21 +29,21 @@ func FindByUserName(username string) (User, error) {
 	return u, nil
 }
 
-func ExistByUserName(username string) (bool, error) {
+func ExistByUserName(username string) error {
 	log.Debug().Msg("users.ExistByUserName called")
 
 	db := common.GetDB()
 	var i int
 	err := db.Get(&i, "SELECT 1 FROM users WHERE username=$1", username)
 	if err != nil {
-		return false, fmt.Errorf("An error occured in users.ExistByUserName.Get: %w", err)
+		return fmt.Errorf("An error occured in users.ExistByUserName.Get: %w", err)
 	}
 
 	if i == 1 {
-		return true, nil
+		return errors.New("User already exits")
 	}
 
-	return false, nil
+	return nil
 }
 
 func CreateOne(user User) error {

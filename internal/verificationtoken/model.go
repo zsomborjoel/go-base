@@ -19,12 +19,12 @@ type VerificationToken struct {
 
 const ExpirationTime = time.Hour * 24
 
-func CreateOne(user user.User) error {
+func CreateOne(user user.User) (string, error) {
 	log.Debug().Msg("verificationtokens.CreateOne called")
 
 	uuid, err := uuid.NewV4()
 	if err != nil {
-		return fmt.Errorf("An error occured in verificationtokens.CreateOne.NewV4: %w", err)
+		return "", fmt.Errorf("An error occured in verificationtokens.CreateOne.NewV4: %w", err)
 	}
 
 	now := time.Now()
@@ -43,15 +43,15 @@ func CreateOne(user user.User) error {
 			VALUES (:token, :created_at, :expired_at, :user_id)`
 	_, err = tx.NamedExec(st, &token)
 	if err != nil {
-		return fmt.Errorf("An error occured in verificationtokens.CreateOne.NamedExec: %w", err)
+		return "", fmt.Errorf("An error occured in verificationtokens.CreateOne.NamedExec: %w", err)
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		return fmt.Errorf("An error occured in verificationtokens.CreateOne.Commit: %w", err)
+		return "", fmt.Errorf("An error occured in verificationtokens.CreateOne.Commit: %w", err)
 	}
 
-	return nil
+	return token.Token, nil
 }
 
 func IsValid(token string) (VerificationToken, error) {

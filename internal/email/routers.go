@@ -16,9 +16,9 @@ func Send(c *gin.Context) {
 
 	p := c.Query("target")
 
-	err := SendEmail(p)
+	err := SendEmail(p, "")
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err.Error())
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 

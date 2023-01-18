@@ -17,7 +17,7 @@ const EmailTitle = "Workoutxz account confirmation"
 const User = "me"
 const EndpointDummy = "$?"
 
-func SendEmail(to string) error {
+func SendEmail(to string, token string) error {
 	log.Debug().Msg("email.SendEmail called")
 
 	from := os.Getenv("GMAIL_ACCOUNT")
@@ -37,7 +37,7 @@ func SendEmail(to string) error {
 	}
 	log.Debug().Msg("Service created")
 
-	html, err := getEmailHtml()
+	html, err := getEmailHtml(token)
 	if err != nil {
 		return err
 	}
@@ -60,10 +60,10 @@ func SendEmail(to string) error {
 	return nil
 }
 
-func getEmailHtml() (string, error) {
+func getEmailHtml(token string) (string, error) {
 	htmlPath := os.Getenv("EMAIL_HTML_PATH")
 	url := os.Getenv("APP_URL")
-	endpoint := url + "/api/auth" + common.ConfirmRegistrationEndpoint
+	endpoint := url + "/api/auth" + common.ConfirmRegistrationEndpoint + "?token=" + token
 
 	html, err := os.ReadFile(htmlPath)
 	if err != nil {
