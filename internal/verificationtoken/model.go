@@ -1,4 +1,4 @@
-package verificationtokens
+package verificationtoken
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/rs/zerolog/log"
 	"github.com/zsomborjoel/workoutxz/internal/common"
-	"github.com/zsomborjoel/workoutxz/internal/users"
+	"github.com/zsomborjoel/workoutxz/internal/user"
 )
 
 type VerificationToken struct {
@@ -19,7 +19,7 @@ type VerificationToken struct {
 
 const ExpirationTime = time.Hour * 24
 
-func CreateOne(user users.User) error {
+func CreateOne(user user.User) error {
 	log.Debug().Msg("verificationtokens.CreateOne called")
 
 	uuid, err := uuid.NewV4()
@@ -64,7 +64,7 @@ func IsValid(token string) (VerificationToken, error) {
 		return vt, fmt.Errorf("An error occured in users.FindByToken.Get: %w", err)
 	}
 
-	if (!(vt.ExpiredAt < time.Now().Unix())) {
+	if vt.ExpiredAt < time.Now().Unix() {
 		return vt, fmt.Errorf("Verification token is expired")
 	}
 

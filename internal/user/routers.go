@@ -1,4 +1,4 @@
-package users
+package user
 
 import (
 	"net/http"
@@ -14,7 +14,7 @@ func UserRetrieveByUserName(c *gin.Context) {
 	un := c.Param("username")
 	u, err := FindByUserName(un)
 	if err != nil {
-		c.JSON(http.StatusNotFound, err.Error())
+		c.AbortWithError(http.StatusNotFound, err)
 		return
 	}
 

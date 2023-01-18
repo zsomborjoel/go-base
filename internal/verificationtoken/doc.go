@@ -3,4 +3,4 @@ The verificationtokens module containing the user CRUD operation and relationshi
 
 model.go: definition of orm based data model
 */
-package verificationtokens
+package verificationtoken

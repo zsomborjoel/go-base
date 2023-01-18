@@ -8,8 +8,9 @@ import (
 	"github.com/zsomborjoel/workoutxz/internal/auth"
 	"github.com/zsomborjoel/workoutxz/internal/common"
 	"github.com/zsomborjoel/workoutxz/internal/email"
-	"github.com/zsomborjoel/workoutxz/internal/pings"
-	"github.com/zsomborjoel/workoutxz/internal/users"
+	"github.com/zsomborjoel/workoutxz/internal/middleware"
+	"github.com/zsomborjoel/workoutxz/internal/ping"
+	"github.com/zsomborjoel/workoutxz/internal/user"
 )
 
 func main() {
@@ -21,11 +22,12 @@ func main() {
 	common.Init()
 
 	r := gin.Default()
-	r.Use(common.CORSMiddleware())
+	r.Use(middleware.CORS())
+	r.Use(middleware.ErrorHandler())
 
 	v1 := r.Group("/api")
-	pings.PingRegister(v1.Group("/ping"))
-	users.UsersRegister(v1.Group("/users"))
+	ping.PingRegister(v1.Group("/ping"))
+	user.UsersRegister(v1.Group("/users"))
 	auth.AuthRegister(v1.Group("/auth"))
 	email.EmailRegister(v1.Group("/email"))
 

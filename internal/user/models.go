@@ -1,4 +1,4 @@
-package users
+package user
 
 import (
 	"fmt"
@@ -51,15 +51,17 @@ func CreateOne(user User) error {
 	db := common.GetDB()
 	tx := db.MustBegin()
 
-	st := `INSERT INTO users (user_id, username, email, password) 
-			VALUES (:user_id, :username, :email, :password)`
+	st := `INSERT INTO users (id, username, email, password) 
+			VALUES (:id, :username, :email, :password)`
 	_, err := tx.NamedExec(st, &user)
 	if err != nil {
+		log.Error().Err(err)
 		return fmt.Errorf("An error occured in users.CreateOne.NamedExec: %w", err)
 	}
 
 	err = tx.Commit()
 	if err != nil {
+		log.Error().Err(err)
 		return fmt.Errorf("An error occured in users.CreateOne.Commit: %w", err)
 	}
 

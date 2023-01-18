@@ -15,7 +15,7 @@ import (
 
 const EmailTitle = "Workoutxz account confirmation"
 const User = "me"
-const EndpointDummy = "me"
+const EndpointDummy = "$?"
 
 func SendEmail(to string) error {
 	log.Debug().Msg("email.SendEmail called")

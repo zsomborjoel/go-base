@@ -2,6 +2,7 @@ package auth
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -10,8 +11,8 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/zsomborjoel/workoutxz/internal/common"
 	"github.com/zsomborjoel/workoutxz/internal/email"
-	"github.com/zsomborjoel/workoutxz/internal/users"
-	"github.com/zsomborjoel/workoutxz/internal/verificationtokens"
+	"github.com/zsomborjoel/workoutxz/internal/user"
+	"github.com/zsomborjoel/workoutxz/internal/verificationtoken"
 )
 
 func AuthRegister(r *gin.RouterGroup) {
@@ -24,37 +25,37 @@ func Registration(c *gin.Context) {
 
 	body, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, fmt.Errorf("Invalid body: %w", err))
+		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("Invalid body: %w", err))
 		return
 	}
 
 	var rr RegistrationRequest
 	err = json.Unmarshal(body, &rr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, fmt.Errorf("Unmarshal error occured: %w", err))
+		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("Unmarshal error occured: %w", err))
 		return
 	}
 
-	var u users.User
+	var u user.User
 	s := RegistrationRequestSerializer{c, rr}
 	u, err = s.Model()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	if err := users.CreateOne(u); err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+	if err := user.CreateOne(u); err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	if err := verificationtokens.CreateOne(u); err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+	if err := verificationtoken.CreateOne(u); err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
 	if err := email.SendEmail(u.Email); err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
@@ -64,16 +65,22 @@ func Registration(c *gin.Context) {
 func ConfirmRegistration(c *gin.Context) {
 	log.Debug().Msg("ConfirmRegistration called")
 
-	t := c.Param("token")
-	vt, err := verificationtokens.IsValid(t)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, err)
+	t := c.Query("token")
+
+	if t == "" {
+		c.AbortWithError(http.StatusBadRequest, errors.New("Invalid token"))
 		return
 	}
 
-	err = users.ActivateOne(users.User{Id: vt.UserId})
+	vt, err := verificationtoken.IsValid(t)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	err = user.ActivateOne(user.User{Id: vt.UserId})
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
