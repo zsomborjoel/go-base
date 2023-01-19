@@ -1,6 +1,7 @@
 package verificationtoken
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -55,13 +56,13 @@ func CreateOne(user user.User) (string, error) {
 }
 
 func IsValid(token string) (VerificationToken, error) {
-	log.Debug().Msg("verificationtokens.FindByToken called")
+	log.Debug().Msg("verificationtokens.IsValid called")
 
 	db := common.GetDB()
 	var vt VerificationToken
 	err := db.Get(&vt, "SELECT * FROM verification_tokens WHERE token=$1", token)
 	if err != nil {
-		return vt, fmt.Errorf("An error occured in users.FindByToken.Get: %w", err)
+		return vt, fmt.Errorf("An error occured in users.IsValid.Get: %w", err)
 	}
 
 	if vt.ExpiredAt < time.Now().Unix() {
@@ -69,4 +70,33 @@ func IsValid(token string) (VerificationToken, error) {
 	}
 
 	return vt, nil
+}
+
+func DeleteOne(token string) {
+	log.Debug().Msg("verificationtokens.DeleteOne called")
+
+	db := common.GetDB()
+	db.MustExec("DELETE FROM verification_tokens WHERE token=$1", token)
+}
+
+func UpdateToken(token string) (string, error) {
+	log.Debug().Msg("verificationtokens.UpdateOne called")
+
+	uuid, err := uuid.NewV4()
+	if err != nil {
+		return "", fmt.Errorf("An error occured in verificationtokens.UpdateOne.NewV4: %w", err)
+	}
+
+	db := common.GetDB()
+	r := db.MustExec("UPDATE verification_tokens SET token=$1 WHERE token=$2", uuid, token)
+	num, err := r.RowsAffected() 
+	if err != nil {
+		return "", fmt.Errorf("An error occured in verificationtokens.UpdateOne.RowsAffected: %w", err)
+	}
+
+	if num == 0 {
+		return "", errors.New("Token was not updated")
+	}
+
+	return uuid.String(), nil	
 }

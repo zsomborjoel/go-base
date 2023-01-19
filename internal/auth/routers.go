@@ -18,6 +18,7 @@ import (
 func AuthRegister(r *gin.RouterGroup) {
 	r.POST("/registration", Registration)
 	r.GET(common.ConfirmRegistrationEndpoint, ConfirmRegistration)
+	r.PUT("/resend-verification", ResendVerification)
 }
 
 func Registration(c *gin.Context) {
@@ -81,7 +82,7 @@ func ConfirmRegistration(c *gin.Context) {
 
 	vt, err := verificationtoken.IsValid(t)
 	if err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
+		c.AbortWithError(http.StatusUnauthorized, err)
 		return
 	}
 
@@ -91,5 +92,32 @@ func ConfirmRegistration(c *gin.Context) {
 		return
 	}
 
+	verificationtoken.DeleteOne(t)
+
 	c.Writer.WriteHeader(http.StatusOK)
+}
+
+func ResendVerification(c *gin.Context) {
+	log.Debug().Msg("ConfirmRegistration called")
+
+	t := c.Query("token")
+
+	if t == "" {
+		c.AbortWithError(http.StatusBadRequest, errors.New("Invalid token"))
+		return
+	}
+
+	_, err := verificationtoken.IsValid(t)
+	if err != nil {
+		c.AbortWithError(http.StatusUnauthorized, err)
+		return
+	}
+
+	new, err := verificationtoken.UpdateToken(t)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, new)
 }
