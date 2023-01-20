@@ -19,6 +19,7 @@ func AuthRegister(r *gin.RouterGroup) {
 	r.POST("/registration", Registration)
 	r.GET(common.ConfirmRegistrationEndpoint, ConfirmRegistration)
 	r.PUT("/resend-verification", ResendVerification)
+	r.POST("/login", Login)
 }
 
 func Registration(c *gin.Context) {
@@ -46,7 +47,7 @@ func Registration(c *gin.Context) {
 	}
 
 	err = user.ExistByUserName(u.UserName)
-	if err != nil  {
+	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
@@ -120,4 +121,27 @@ func ResendVerification(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, new)
+}
+
+func Login(c *gin.Context) {
+	log.Debug().Msg("Login called")
+	lr := &LoginRequest{}
+	if err := c.BindJSON(&lr); err != nil {
+		c.AbortWithError(http.StatusBadRequest, errors.New("Invalid login request body"))
+		return
+	}
+
+	u, err := user.FindByUserName(lr.UserName)
+	if err != nil {
+		c.AbortWithError(http.StatusNotFound, err)
+		return
+	}
+
+	token, err := CreateJWTToken(u)
+	if err != nil {
+		c.AbortWithError(http.StatusNotFound, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, token)
 }

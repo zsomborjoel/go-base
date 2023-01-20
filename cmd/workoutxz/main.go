@@ -22,8 +22,10 @@ func main() {
 	common.Init()
 
 	r := gin.Default()
-	r.Use(middleware.CORS())
-	r.Use(middleware.ErrorHandler())
+	r.Use(
+		middleware.CORS(),
+		middleware.ErrorHandler(),
+	)
 
 	v1 := r.Group("/api")
 	ping.PingRegister(v1.Group("/ping"))
