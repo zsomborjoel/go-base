@@ -21,11 +21,11 @@ type VerificationToken struct {
 const ExpirationTime = time.Hour * 24
 
 func CreateOne(user user.User) (string, error) {
-	log.Debug().Msg("verificationtokens.CreateOne called")
+	log.Debug().Msg("verificationtoken.CreateOne called")
 
 	uuid, err := uuid.NewV4()
 	if err != nil {
-		return "", fmt.Errorf("An error occured in verificationtokens.CreateOne.NewV4: %w", err)
+		return "", fmt.Errorf("An error occured in verificationtoken.CreateOne.NewV4: %w", err)
 	}
 
 	now := time.Now()
@@ -44,25 +44,25 @@ func CreateOne(user user.User) (string, error) {
 			VALUES (:token, :created_at, :expired_at, :user_id)`
 	_, err = tx.NamedExec(st, &token)
 	if err != nil {
-		return "", fmt.Errorf("An error occured in verificationtokens.CreateOne.NamedExec: %w", err)
+		return "", fmt.Errorf("An error occured in verificationtoken.CreateOne.NamedExec: %w", err)
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		return "", fmt.Errorf("An error occured in verificationtokens.CreateOne.Commit: %w", err)
+		return "", fmt.Errorf("An error occured in verificationtoken.CreateOne.Commit: %w", err)
 	}
 
 	return token.Token, nil
 }
 
 func IsValid(token string) (VerificationToken, error) {
-	log.Debug().Msg("verificationtokens.IsValid called")
+	log.Debug().Msg("verificationtoken.IsValid called")
 
 	db := common.GetDB()
 	var vt VerificationToken
 	err := db.Get(&vt, "SELECT * FROM verification_tokens WHERE token=$1", token)
 	if err != nil {
-		return vt, fmt.Errorf("An error occured in users.IsValid.Get: %w", err)
+		return vt, fmt.Errorf("An error occured in verificationtoken.IsValid.Get: %w", err)
 	}
 
 	if vt.ExpiredAt < time.Now().Unix() {
@@ -73,25 +73,25 @@ func IsValid(token string) (VerificationToken, error) {
 }
 
 func DeleteOne(token string) {
-	log.Debug().Msg("verificationtokens.DeleteOne called")
+	log.Debug().Msg("verificationtoken.DeleteOne called")
 
 	db := common.GetDB()
 	db.MustExec("DELETE FROM verification_tokens WHERE token=$1", token)
 }
 
 func UpdateToken(token string) (string, error) {
-	log.Debug().Msg("verificationtokens.UpdateOne called")
+	log.Debug().Msg("verificationtoken.UpdateOne called")
 
 	uuid, err := uuid.NewV4()
 	if err != nil {
-		return "", fmt.Errorf("An error occured in verificationtokens.UpdateOne.NewV4: %w", err)
+		return "", fmt.Errorf("An error occured in verificationtoken.UpdateOne.NewV4: %w", err)
 	}
 
 	db := common.GetDB()
 	r := db.MustExec("UPDATE verification_tokens SET token=$1 WHERE token=$2", uuid, token)
 	num, err := r.RowsAffected() 
 	if err != nil {
-		return "", fmt.Errorf("An error occured in verificationtokens.UpdateOne.RowsAffected: %w", err)
+		return "", fmt.Errorf("An error occured in verificationtoken.UpdateOne.RowsAffected: %w", err)
 	}
 
 	if num == 0 {

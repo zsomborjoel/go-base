@@ -29,6 +29,19 @@ func FindByUserName(username string) (User, error) {
 	return u, nil
 }
 
+func FindByUserId(id string) (User, error) {
+	log.Debug().Msg("users.FindByUserId called")
+
+	db := common.GetDB()
+	var u User
+	err := db.Get(&u, "SELECT * FROM users WHERE id=$1", id)
+	if err != nil {
+		return u, fmt.Errorf("An error occured in users.FindByUserId.Get: %w", err)
+	}
+
+	return u, nil
+}
+
 func ExistByUserName(username string) error {
 	log.Debug().Msg("users.ExistByUserName called")
 

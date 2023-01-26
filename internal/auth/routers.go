@@ -11,6 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/zsomborjoel/workoutxz/internal/common"
 	"github.com/zsomborjoel/workoutxz/internal/email"
+	"github.com/zsomborjoel/workoutxz/internal/refreshtoken"
 	"github.com/zsomborjoel/workoutxz/internal/user"
 	"github.com/zsomborjoel/workoutxz/internal/verificationtoken"
 )
@@ -20,6 +21,7 @@ func AuthRegister(r *gin.RouterGroup) {
 	r.GET(common.ConfirmRegistrationEndpoint, ConfirmRegistration)
 	r.PUT("/resend-verification", ResendVerification)
 	r.POST("/login", Login)
+	r.POST("/refresh-token", RefreshJWTToken)
 }
 
 func Registration(c *gin.Context) {
@@ -99,12 +101,12 @@ func ConfirmRegistration(c *gin.Context) {
 }
 
 func ResendVerification(c *gin.Context) {
-	log.Debug().Msg("ConfirmRegistration called")
+	log.Debug().Msg("ResendVerification called")
 
-	t := c.Query("token")
+	t := c.Query("verificationtoken")
 
 	if t == "" {
-		c.AbortWithError(http.StatusBadRequest, errors.New("Invalid token"))
+		c.AbortWithError(http.StatusBadRequest, errors.New("Invalid verificationtoken"))
 		return
 	}
 
@@ -131,17 +133,50 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	u, err := user.FindByUserName(lr.UserName)
+	usr, err := user.FindByUserName(lr.UserName)
 	if err != nil {
 		c.AbortWithError(http.StatusNotFound, err)
 		return
 	}
 
-	token, err := CreateJWTToken(u)
+	jwt, err := CreateJWTToken(usr)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	s := JwtTokenSerializer{c, usr, jwt}
+	c.JSON(http.StatusOK, s.Response())
+}
+
+func RefreshJWTToken(c *gin.Context) {
+	log.Debug().Msg("RefreshJWTToken called")
+
+	t := c.Query("refreshtoken")
+
+	if t == "" {
+		c.AbortWithError(http.StatusBadRequest, errors.New("Invalid refreshtoken"))
+		return
+	}
+
+	rt, err := refreshtoken.IsValid(t)
+	if err != nil {
+		c.AbortWithError(http.StatusUnauthorized, err)
+		return
+	}
+
+	u, err := user.FindByUserId(rt.UserId)
 	if err != nil {
 		c.AbortWithError(http.StatusNotFound, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, token)
+	jwt, err := CreateJWTToken(u)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	s := RefreshTokenSerializer{c, jwt}
+	c.JSON(http.StatusOK, s.Response())
 }
