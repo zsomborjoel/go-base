@@ -40,12 +40,14 @@ type RegistrationRequestSerializer struct {
 type JwtTokenSerializer struct {
 	C *gin.Context
 	user.User
-	token string
+	jwt string
+	refresht string
 }
 
 type RefreshTokenSerializer struct {
 	C *gin.Context
-	token string
+	jwt string
+	refresht string
 }
 
 func (s *RegistrationRequestSerializer) Model() (user.User, error) {
@@ -71,28 +73,16 @@ func (s *RegistrationRequestSerializer) Model() (user.User, error) {
 }
 
 func (s *JwtTokenSerializer) Response() JwtTokenResponse {
-
-	uuid, err := uuid.NewV4()
-	if err != nil {
-		log.Error().Err(err).Msg("An error occured in refresh token generation")
-	}
-
 	return JwtTokenResponse{
 		UserName:     s.UserName,
-		RefreshToken: uuid.String(),
-		Token: s.token,
+		RefreshToken: s.refresht,
+		Token: s.jwt,
 	}
 }
 
 func (s *RefreshTokenSerializer) Response() RefreshTokenResponse {
-
-	uuid, err := uuid.NewV4()
-	if err != nil {
-		log.Error().Err(err).Msg("An error occured in refresh token generation")
-	}
-
 	return RefreshTokenResponse{
-		RefreshToken: uuid.String(),
-		Token: s.token,
+		RefreshToken: s.refresht,
+		Token: s.jwt,
 	}
 }

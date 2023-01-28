@@ -23,7 +23,7 @@ func FindByUserName(username string) (User, error) {
 	var u User
 	err := db.Get(&u, "SELECT * FROM users WHERE username=$1", username)
 	if err != nil {
-		return u, fmt.Errorf("An error occured in users.FindUserByUserName.Get: %w", err)
+		return u, fmt.Errorf("An error occured in users.FindUserByUserName.Select: %w", err)
 	}
 
 	return u, nil
@@ -49,7 +49,7 @@ func ExistByUserName(username string) error {
 	var i int
 	err := db.Get(&i, "SELECT 1 FROM users WHERE username=$1", username)
 	if err != nil {
-		return fmt.Errorf("An error occured in users.ExistByUserName.Get: %w", err)
+		log.Warn().Err(err)
 	}
 
 	if i == 1 {

@@ -139,44 +139,56 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	err = validatePassword(lr.Password, usr.Password)
+	if err != nil {
+		c.AbortWithError(http.StatusUnauthorized, err)
+		return
+	}
+
 	jwt, err := CreateJWTToken(usr)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	s := JwtTokenSerializer{c, usr, jwt}
+	rt, err := refreshtoken.CreateOne(usr)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	s := JwtTokenSerializer{c, usr, jwt, rt}
 	c.JSON(http.StatusOK, s.Response())
 }
 
 func RefreshJWTToken(c *gin.Context) {
 	log.Debug().Msg("RefreshJWTToken called")
 
-	t := c.Query("refreshtoken")
+	rcvt := c.Query("refreshtoken")
 
-	if t == "" {
+	if rcvt == "" {
 		c.AbortWithError(http.StatusBadRequest, errors.New("Invalid refreshtoken"))
 		return
 	}
 
-	rt, err := refreshtoken.IsValid(t)
+	rt, err := refreshtoken.IsValid(rcvt)
 	if err != nil {
 		c.AbortWithError(http.StatusUnauthorized, err)
 		return
 	}
 
-	u, err := user.FindByUserId(rt.UserId)
+	usr, err := user.FindByUserId(rt.UserId)
 	if err != nil {
 		c.AbortWithError(http.StatusNotFound, err)
 		return
 	}
 
-	jwt, err := CreateJWTToken(u)
+	jwt, err := CreateJWTToken(usr)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	s := RefreshTokenSerializer{c, jwt}
+	s := RefreshTokenSerializer{c, jwt, rt.Token}
 	c.JSON(http.StatusOK, s.Response())
 }
