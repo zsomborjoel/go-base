@@ -10,4 +10,4 @@ update
 
 ### compile daemon ###
 
-./CompileDaemon -directory="/home/zsomborjoel/Git/workoutxz/cmd/workoutxz"
+./CompileDaemon -directory="/home/zsomborjoel/Git/projectname/cmd/projectname"
