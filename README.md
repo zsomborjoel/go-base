@@ -1,2 +1,2 @@
-# workoutxz
-Workout tracker app
+# go-base
+My go base project
