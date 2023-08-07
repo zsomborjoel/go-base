@@ -24,6 +24,7 @@
 
 # Built Visual Studio Code Extensions
 *.vsix
+.vscode
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
